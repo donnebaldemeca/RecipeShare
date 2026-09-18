@@ -1,18 +1,36 @@
 from typing import Optional
+from pydantic import BaseModel
 from pydantic_settings import BaseSettings, SettingsConfigDict
+from botocore.config import Config
 
+# 1. Create simple sub-models for grouped categories
+class AWSSettings(BaseModel):
+    REGION: str = "us-east-1"
+    DYNAMODB_ENDPOINT: Optional[str] = None  # Populated via DYNAMODB_ENDPOINT locally
+    ACCESS_KEY_ID: str = "localdev"
+    SECRET_ACCESS_KEY: str = "localdev"
+
+class DatabaseSettings(BaseModel):
+    USERS_TABLE_NAME: str = "Local_Users_Table"
+
+# 2. Embed them into the main global Settings class
 class Settings(BaseSettings):
+    # App core settings
     ENV: str = "development"
     DEBUG: bool = True
-
-    AWS_REGION: str = "us-east-1"
-    USERS_TABLE_NAME: str = "Local_Users_Table"
-    DYNAMODB_ENDPOINT: Optional[str] = None
     
-    # Static fallbacks for local docker container auth
-    AWS_ACCESS_KEY_ID: str = "localdev"
-    AWS_SECRET_ACCESS_KEY: str = "localdev"
+    # Nested configurations
+    aws: AWSSettings = AWSSettings()
+    db: DatabaseSettings = DatabaseSettings()
 
-    model_config = SettingsConfigDict(env_file=".env", extra="ignore")
+    # Tells Pydantic how to handle .env parsing
+    model_config = SettingsConfigDict(
+        env_file=".env",
+        env_file_encoding="utf-8",
+        # This allows you to map flat .env variables to nested objects
+        # e.g., AWS_REGION sets settings.aws.REGION automatically
+        env_nested_delimiter="__", 
+        extra="ignore"
+    )
 
 settings = Settings()
