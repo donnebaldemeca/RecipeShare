@@ -1,7 +1,6 @@
 from typing import Optional
 from pydantic import BaseModel
 from pydantic_settings import BaseSettings, SettingsConfigDict
-from botocore.config import Config
 
 # 1. Create simple sub-models for grouped categories
 class AWSSettings(BaseModel):
