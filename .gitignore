@@ -11,3 +11,6 @@ __pycache__/
 
 # Env variables
 .env
+
+# Docker local database storage
+docker_dynamodb_data/
