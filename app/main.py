@@ -4,6 +4,7 @@ from fastapi.middleware.cors import CORSMiddleware
 from config import settings
 from scripts.create_table import create_table
 from scripts.create_db_connection import create_db_connection
+from routes import api_router
 
 # 1. Handle startup/shutdown cleanly
 @asynccontextmanager
@@ -11,7 +12,7 @@ async def lifespan(app: FastAPI):
     # 1. Store settings inside app.state on boot
     app.state.settings = settings
 
-    # 2. Initialize dynamo db connection, and create table
+    # 2. Initialize dynamo db connection, and create table & TTL
     db_client, db_resource = create_db_connection(app.state.settings)
     
     create_table(db_client, app.state.settings)
@@ -39,7 +40,7 @@ def create_app() -> FastAPI:
     )
 
     # # Single-line route registration
-    # app.include_router(api_router)
+    app.include_router(api_router, prefix=app.state.settings.API_PREFIX)
 
     return app
 

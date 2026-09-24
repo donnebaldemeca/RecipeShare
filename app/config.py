@@ -17,6 +17,7 @@ class Settings(BaseSettings):
     # App core settings
     ENV: str = "development"
     DEBUG: bool = True
+    API_PREFIX: str = "/api/v1"
     
     # Nested configurations
     aws: AWSSettings = AWSSettings()
